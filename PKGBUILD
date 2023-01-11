@@ -10,7 +10,7 @@ depends=('qt5-base' 'qt5-multimedia')
 makedepends=()
 checkdepends=()
 optdepends=()
-source=("Lofi-Player::git://github.com/Roshan-R/Lofi-Player")
+source=("Lofi-Player::git+https://github.com/Roshan-R/Lofi-Player")
 md5sums=('SKIP')
 
 build() {
