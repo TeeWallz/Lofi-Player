@@ -1,26 +1,30 @@
-#include "lofi.h"
-#include "ui_lofi.h"
 #include <QMediaPlayer>
+#include <QMessageBox>
 #include <QFile>
 #include <QDebug>
 #include <QFontDatabase>
+#include <QLabel>
+#include <QPropertyAnimation>
+#include <json/value.h>
+#include <fstream>
+#include <iostream>
+#include "lofi.h"
+#include "ui_lofi.h"
+#include "lib/nlohmann/json.hpp"
+
+using json = nlohmann::json;
+
 lofi::lofi(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::lofi)
+    : QMainWindow(parent), ui(new Ui::lofi)
 {
     ui->setupUi(this);
 
-    int loadedFontID = QFontDatabase::addApplicationFont ( ":/fonts/BebasNeue.ttf" );
-    qInfo()<<loadedFontID;
+    int loadedFontID = QFontDatabase::addApplicationFont(":/fonts/BebasNeue.ttf");
+    qInfo() << loadedFontID;
     QFont Bebas("BebasNeue", 40, QFont::Bold);
     ui->Toplabel->setFont(Bebas);
 
     ui->volumeSlider->setValue(100);
-    lofi::setStreams();
-    lofi::setAudio();
-    QMediaPlayer tmplayer;
-    tmplayer.setMedia(QUrl("http://192.99.35.215:5078"));
-    tmplayer.play();
 }
 
 lofi::~lofi()
@@ -28,38 +32,75 @@ lofi::~lofi()
     delete ui;
 }
 
-
-void lofi::on_Button_clicked()
+std::string lofi::getJsonStreamsFileLocation()
 {
+    if (this->jsonStreamFileLocationCustom.empty())
+    {
+        return this->jsonStreamFileLocationDefault;
+    }
+    else
+    {
+        return this->jsonStreamFileLocationCustom;
+    }
 }
 
-void lofi::on_volumeSlider_sliderMoved(int position)
+bool lofi::setStreams()
 {
-   lofi::changeVolume(ui->volumeSlider->value());
+    // Perform stream fle check here, as the default may not exist as well
+    if (!std::ifstream(this->getJsonStreamsFileLocation()))
+    {
+        return false;
+    }
+
+    std::ifstream f(this->getJsonStreamsFileLocation());
+    json stationData = json::parse(f);
+
+    for (const auto &station : stationData.items())
+    {
+        Station s = {
+            .name = QString::fromStdString(station.value()["name"].get<std::string>()),
+            .url = QString::fromStdString(station.value()["url"].get<std::string>())};
+
+        liveStation.push_back(s);
+    }
+
+    lofi::setAudio();
+    lofi::setUiStationName();
+    return true;
 }
 
-
-void lofi::on_Button_pressed()
+void lofi::on_volumeSlider_valueChanged(int position)
 {
+    lofi::changeVolume(position);
+}
 
-    if(!lofi::playStatus()) {
+void lofi::on_pushButtonPlay_pressed()
+{
+    if (!lofi::playStatus())
+    {
         lofi::setPlaying();
         lofi::playAudio();
     }
-    else{
-       lofi::setPause();
-       lofi::pauseAudio();
+    else
+    {
+        lofi::setPause();
+        lofi::pauseAudio();
     }
 }
 
-void lofi::on_pushButton_pressed()
+void lofi::on_pushButtonNextStation_pressed()
 {
-   lofi::nextStation();
-   ui->FMlabel->setText(lofi::getStationName());
+    lofi::nextStation();
+    lofi::setUiStationName();
 }
 
-void lofi::on_pushButton_2_pressed()
+void lofi::on_pushButtonPreviousStation_pressed()
 {
-   lofi::previousStation();
-   ui->FMlabel->setText(lofi::getStationName());
+    lofi::previousStation();
+    lofi::setUiStationName();
+}
+
+void lofi::setUiStationName()
+{
+    ui->FMlabel->setText(lofi::getStationName());
 }

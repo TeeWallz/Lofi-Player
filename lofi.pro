@@ -19,6 +19,10 @@ SOURCES += \
     main.cpp \
     lofi.cpp
 
+LIBS += \
+    lib/cxxopts/cxxopts.hpp \
+    lib/nlohmann/json.hpp
+
 HEADERS += \
     lofi.h
 

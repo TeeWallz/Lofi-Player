@@ -1,0 +1,8 @@
+.vscode/
+Makefile
+.qmake.stash
+*.o
+*.cpp
+moc_predefs.h
+ui_lofi.h
+lofi

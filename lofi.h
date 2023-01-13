@@ -3,12 +3,19 @@
 
 #include <QMainWindow>
 #include <QMediaPlayer>
+#include <json/value.h>
+#include <fstream>
+#include <iostream>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class lofi; }
+namespace Ui
+{
+    class lofi;
+}
 QT_END_NAMESPACE
 
-struct Station{
+struct Station
+{
     QString name;
     QString url;
 };
@@ -18,95 +25,99 @@ class lofi : public QMainWindow
     Q_OBJECT
 
 public:
+    std::string jsonStreamFileLocationCustom;
 
-    void setStreams(){
-    this->liveStation[0] = {"Lauft.fm" , "http://stream.laut.fm/lofi"};
-    this->liveStation[1] = {"Planet Lofi","http://198.245.60.88:8080" };
-    this->liveStation[2] = {"Chill Cafe","http://192.99.35.215:5078"};
-    this->liveStation[3] = {"No Copyright Stream","http://78.129.222.70:33297" };
-    this->liveStation[4] = {"Chillsky", "https://lfhh.radioca.st/stream"};
-    this->liveStation[5] = {"Lofi Hip Hop Radio", "https://stream.zeno.fm/0r0xa792kwzuv"};
-    this->liveStation[6] = {"RauteMusik.FM Study", "http://de-hz-fal-stream07.rautemusik.fm/study"};
-    }
+    bool setStreams();
+    
+    void setUiStationName();
 
-    int playStatus(){
+    std::string getJsonStreamsFileLocation();
+
+    int playStatus()
+    {
         return this->isPlaying;
     }
 
-    void setPlaying(){
-        this ->isPlaying = 1;
+    void setPlaying()
+    {
+        this->isPlaying = 1;
     }
 
-    void setPause(){
-        this ->isPlaying = 0;
+    void setPause()
+    {
+        this->isPlaying = 0;
     }
 
-    void setAudio(){
-      this->player.setMedia(QUrl(this->liveStation[this->nowPlaying].url));
-      qInfo()<<this->liveStation[this->nowPlaying].name<<" : "<<this->liveStation[this->nowPlaying].url;
+    void setAudio()
+    {
+        this->player.setMedia(QUrl(this->liveStation[this->nowPlaying].url));
+        qInfo() << this->liveStation[this->nowPlaying].name << " : " << this->liveStation[this->nowPlaying].url;
     }
 
-    void nextStation(){
-        if ( this->nowPlaying == 9){
-            this->nowPlaying = 1;
-        }
-        else{
-            this->nowPlaying++;
-        }
+    void nextStation()
+    {
+        this->nowPlaying = (this->nowPlaying + 1) % liveStation.size();
         setAudio();
-        if(this->isPlaying){
+        if (this->isPlaying)
+        {
             playAudio();
         }
     }
 
-    void previousStation(){
-        if ( this->nowPlaying == 0){
-            this->nowPlaying = 9;
-        }
-        else{
-            this->nowPlaying--;
-        }
+    void previousStation()
+    {
+        this->nowPlaying = (this->nowPlaying - 1) % liveStation.size();
         setAudio();
-        if(this->isPlaying){
+        if (this->isPlaying)
+        {
             playAudio();
         }
     }
-    void playAudio() {
-      this->player.play();
+    void playAudio()
+    {
+        this->player.play();
     }
 
-    QString getStationName(){
+    QString getStationName()
+    {
         return this->liveStation[this->nowPlaying].name;
     }
 
-    void changeVolume(int val) {
-        this->player.setVolume(val);
+    void changeVolume(int volumeSliderValue)
+    {
+        // Volume is perceived as logarithmic, as oposed to linear
+        // https://felgo.com/doc/qt/qaudio/#convertVolume
+        // volumeSliderValue is in the range [0..100]
+        qreal linearVolume = QAudio::convertVolume(volumeSliderValue / qreal(100.0),
+                                                QAudio::LogarithmicVolumeScale,
+                                                QAudio::LinearVolumeScale);
+
+        this->player.setVolume(qRound(linearVolume * 100));
     }
 
-    void pauseAudio() {
-      this->player.pause();
+    void pauseAudio()
+    {
+        this->player.pause();
     }
 
     lofi(QWidget *parent = nullptr);
     ~lofi();
 
 private slots:
-    void on_Button_clicked();
+    void on_volumeSlider_valueChanged(int position);
 
-    void on_volumeSlider_sliderMoved(int position);
+    void on_pushButtonPlay_pressed();
 
+    void on_pushButtonNextStation_pressed();
 
-    void on_Button_pressed();
-
-    void on_pushButton_pressed();
-
-    void on_pushButton_2_pressed();
+    void on_pushButtonPreviousStation_pressed();
 
 private:
+    std::vector<Station> liveStation;
     int isPlaying = 0;
-    int nowPlaying = 1;
+    int nowPlaying = 0;
+    std::string jsonStreamFileLocationDefault = "/etc/Lofi-Player/streams.json";
     Ui::lofi *ui;
-    Station liveStation[10];
     QMediaPlayer player;
 };
 #endif // LOFI_H

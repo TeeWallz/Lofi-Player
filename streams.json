@@ -1,0 +1,26 @@
+[
+	{
+		"name": "Lauft.fm",
+		"url": "http://stream.laut.fm/lofi"
+	},
+	{
+		"name": "Planet Lofi",
+		"url": "http://198.245.60.88:8080"
+	},
+	{
+		"name": "Chill Cafe",
+		"url": "http://192.99.35.215:5078"
+	},
+	{
+		"name": "Chillsky",
+		"url": "https://lfhh.radioca.st/stream"
+	},
+	{
+		"name": "Lofi Hip Hop Radio",
+		"url": "https://stream.zeno.fm/0r0xa792kwzuv"
+	},
+	{
+		"name": "RauteMusik.FM Study",
+		"url": "http://de-hz-fal-stream07.rautemusik.fm/study"
+	}
+]

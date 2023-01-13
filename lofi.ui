@@ -178,7 +178,7 @@ QPushButton#pushbutton{
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="Button">
+   <widget class="QPushButton" name="pushButtonPlay">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -311,7 +311,7 @@ QPushButton#pushbutton{
       </font>
      </property>
      <property name="text">
-      <string>Planet Lofi</string>
+      <string>Station Name</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -341,7 +341,7 @@ QPushButton#pushbutton{
     <zorder>Playinglabel</zorder>
     <zorder>label</zorder>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButtonNextStation">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -367,7 +367,7 @@ QPushButton#pushbutton{
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="pushButtonPreviousStation">
     <property name="geometry">
      <rect>
       <x>40</x>

@@ -24,4 +24,5 @@ package() {
     install -Dm755 ./lofi "$pkgdir/usr/bin/Lofi-Player"
     install -Dm644 "$pkgname.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
     install -Dm644 "$pkgname.png" "$pkgdir/usr/share/pixmaps/$pkgname.png"
+    install -Dm644 "streams.json" "$pkgdir/etc/Lofi-Player/streams.json"
 }
